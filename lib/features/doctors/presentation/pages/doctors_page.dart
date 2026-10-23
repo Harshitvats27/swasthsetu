@@ -10,7 +10,9 @@ import 'package:swasthsetu/features/doctors/bloc/doctor_state.dart';
 import 'package:swasthsetu/features/doctors/data/models/doctor_model.dart';
 import 'package:swasthsetu/features/appointments/presentation/widgets/appointment_booking_sheet.dart';
 class DoctorsPage extends StatefulWidget {
-  const DoctorsPage({super.key});
+  const DoctorsPage({super.key, this.initialSpecialty});
+
+  final String? initialSpecialty;
 
   @override
   State<DoctorsPage> createState() => _DoctorsPageState();
@@ -18,59 +20,123 @@ class DoctorsPage extends StatefulWidget {
 
 class _DoctorsPageState extends State<DoctorsPage> {
   final TextEditingController _searchController = TextEditingController();
+  String? _activeSpecialty;
 
   @override
   void initState() {
     super.initState();
-    context.read<DoctorBloc>().add(LoadDoctorsEvent());
+    _applySpecialty(widget.initialSpecialty);
   }
 
-  void _onSearchChanged(String query) {
-    if (query.isEmpty) {
-      context.read<DoctorBloc>().add(LoadDoctorsEvent());
-    } else {
-      context.read<DoctorBloc>().add(SearchDoctorsEvent(query));
+  @override
+  void didUpdateWidget(covariant DoctorsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialSpecialty != oldWidget.initialSpecialty) {
+      _applySpecialty(widget.initialSpecialty);
     }
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _applySpecialty(String? specialty) {
+    if (specialty != null && specialty.trim().isNotEmpty) {
+      final trimmed = specialty.trim();
+      _activeSpecialty = trimmed;
+      _searchController.text = trimmed;
+      context.read<DoctorBloc>().add(SearchDoctorsEvent(trimmed));
+    } else {
+      _activeSpecialty = null;
+      _searchController.clear();
+      context.read<DoctorBloc>().add(LoadDoctorsEvent());
+    }
+  }
+
+  void _onSearchChanged(String query) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) {
+      setState(() => _activeSpecialty = null);
+      context.read<DoctorBloc>().add(LoadDoctorsEvent());
+    } else {
+      setState(() => _activeSpecialty = trimmed);
+      context.read<DoctorBloc>().add(SearchDoctorsEvent(trimmed));
+    }
+  }
+
+  void _clearFilter() {
+    _searchController.clear();
+    setState(() => _activeSpecialty = null);
+    context.read<DoctorBloc>().add(LoadDoctorsEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FE),
-      appBar: AppBar(
-        title: const Text('Find Doctors', style: TextStyle(color: Colors.black87)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
-      ),
-      body: Column(
-        children: [
-          _buildSearchBar(),
-          _buildFilterChips(),
-          Expanded(
-            child: BlocBuilder<DoctorBloc, DoctorState>(
-              builder: (context, state) {
-                if (state is DoctorLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is DoctorLoaded) {
-                  if (state.doctors.isEmpty) {
-                    return const Center(child: Text('No doctors found.'));
+    final router = GoRouter.maybeOf(context);
+    final canPop = router?.canPop() ?? Navigator.of(context).canPop();
+    final hasSpecialty = _activeSpecialty != null && _activeSpecialty!.isNotEmpty;
+
+    void handleBack() {
+      if (router != null && router.canPop()) {
+        context.pop();
+      } else if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else {
+        context.go(AppRoutes.home);
+      }
+    }
+
+    return PopScope(
+      canPop: canPop,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        handleBack();
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F9FE),
+        appBar: AppBar(
+          title: const Text('Find Doctors', style: TextStyle(color: Colors.black87)),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.black87),
+          leading: (canPop || hasSpecialty)
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: handleBack,
+                )
+              : null,
+        ),
+        body: Column(
+          children: [
+            _buildSearchBar(),
+            _buildFilterChips(),
+            Expanded(
+              child: BlocBuilder<DoctorBloc, DoctorState>(
+                builder: (context, state) {
+                  if (state is DoctorLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is DoctorLoaded) {
+                    if (state.doctors.isEmpty) {
+                      return const Center(child: Text('No doctors found.'));
+                    }
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: state.doctors.length,
+                      itemBuilder: (context, index) {
+                        return _buildDoctorCard(state.doctors[index]);
+                      },
+                    );
+                  } else if (state is DoctorError) {
+                    return Center(child: Text(state.message));
                   }
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.doctors.length,
-                    itemBuilder: (context, index) {
-                      return _buildDoctorCard(state.doctors[index]);
-                    },
-                  );
-                } else if (state is DoctorError) {
-                  return Center(child: Text(state.message));
-                }
-                return const Center(child: Text('Please wait...'));
-              },
+                  return const Center(child: Text('Please wait...'));
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -85,6 +151,12 @@ class _DoctorsPageState extends State<DoctorsPage> {
         decoration: InputDecoration(
           hintText: 'Search by name, specialty...',
           prefixIcon: const Icon(Icons.search),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear_rounded, size: 20),
+                  onPressed: _clearFilter,
+                )
+              : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -97,6 +169,8 @@ class _DoctorsPageState extends State<DoctorsPage> {
   }
 
   Widget _buildFilterChips() {
+    final hasSpecialty = _activeSpecialty != null && _activeSpecialty!.isNotEmpty;
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -104,7 +178,11 @@ class _DoctorsPageState extends State<DoctorsPage> {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          _buildChip('Specialty'),
+          _buildChip(
+            hasSpecialty ? 'Specialty: $_activeSpecialty' : 'Specialty',
+            isSelected: hasSpecialty,
+            onTap: hasSpecialty ? _clearFilter : null,
+          ),
           const SizedBox(width: 8),
           _buildChip('Distance'),
           const SizedBox(width: 8),
@@ -116,18 +194,37 @@ class _DoctorsPageState extends State<DoctorsPage> {
     );
   }
 
-  Widget _buildChip(String label) {
+  Widget _buildChip(
+    String label, {
+    bool isSelected = false,
+    VoidCallback? onTap,
+  }) {
     return ActionChip(
+      avatar: isSelected
+          ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+          : null,
       label: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label),
-          const Icon(Icons.arrow_drop_down, size: 16),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black87,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(
+            isSelected ? Icons.close_rounded : Icons.arrow_drop_down,
+            size: 16,
+            color: isSelected ? Colors.white : Colors.black87,
+          ),
         ],
       ),
-      onPressed: () {
+      onPressed: onTap ?? () {
         // Implement filter modal here
       },
-      backgroundColor: const Color(0xFFF0F2F5),
+      backgroundColor: isSelected ? AppColors.primary : const Color(0xFFF0F2F5),
     );
   }
 
@@ -137,8 +234,12 @@ class _DoctorsPageState extends State<DoctorsPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
         ],
       ),
       child: Padding(

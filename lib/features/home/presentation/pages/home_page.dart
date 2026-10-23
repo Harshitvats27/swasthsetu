@@ -11,6 +11,8 @@ import 'package:swasthsetu/features/doctors/bloc/doctor_state.dart';
 import 'package:swasthsetu/features/doctors/data/models/doctor_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:swasthsetu/core/di/injection_container.dart';
+import 'package:swasthsetu/core/theme/app_text_styles.dart';
+import 'package:swasthsetu/core/widgets/widgets.dart';
 import 'package:swasthsetu/features/appointments/presentation/widgets/appointment_booking_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 class HomePage extends StatefulWidget {
@@ -42,7 +44,7 @@ class _HomePageState extends State<HomePage> {
           int docIndex = 0;
           
           for (var hospital in hospitalsSnapshot.docs) {
-            final data = hospital.data() as Map<String, dynamic>;
+            final data = hospital.data();
             final totalBeds = data['totalBeds'] ?? 0;
             
             // Big hospital (>= 100 beds) -> 5 to 6 doctors
@@ -92,7 +94,7 @@ class _HomePageState extends State<HomePage> {
         child: Stack(
           children: [
             SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 80),
+              padding: const EdgeInsets.only(bottom: 90),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -102,7 +104,11 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 24),
                   _buildDoctorsSection(context),
                   const SizedBox(height: 24),
-                  _buildQuickActions(context),
+                  _buildHealthPromoBanner(context),
+                  const SizedBox(height: 24),
+                  _buildFirstActionCard(context),
+                  const SizedBox(height: 24),
+                  _buildSecondActionCard(context),
                   const SizedBox(height: 32),
                   _buildFooterSection(),
                 ],
@@ -502,7 +508,7 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               TextButton(
-                onPressed: () => context.push(AppRoutes.doctors),
+                onPressed: () => context.go(AppRoutes.doctors),
                 child: const Text('View All', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
               ),
             ],
@@ -649,68 +655,184 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildHealthPromoBanner(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: GridView.count(
-        crossAxisCount: 3,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 24,
-        crossAxisSpacing: 16,
-        childAspectRatio: 0.85,
-        children: [
-          _buildActionItem(Icons.calendar_month, 'Appointment', const Color(0xFFE8EAF6)),
-          _buildActionItem(
-            Icons.medication,
-            'Medication',
-            const Color(0xFFFFEBEE),
-            onTap: () async {
-              final url = Uri.parse('https://grabkrt.web.app/');
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url, mode: LaunchMode.externalApplication);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Could not launch URL')),
-                );
-              }
-            },
-          ),
-          _buildActionItem(Icons.monitor_heart, 'Diagnosis', const Color(0xFFE0F7FA)),
-          _buildActionItem(Icons.assignment, 'Follow Up', const Color(0xFFFFF3E0)),
-          _buildActionItem(Icons.back_hand, 'Allergies', const Color(0xFFE8F5E9)),
-          _buildActionItem(Icons.favorite, 'Health Records', const Color(0xFFF3E5F5)),
-          _buildActionItem(Icons.article, 'Pathology Reports', const Color(0xFFE3F2FD)),
-          _buildActionItem(Icons.medical_services, 'Radiology Reports', const Color(0xFFFFEBEE)),
-        ],
+      child: AppCard(
+        onTap: () => context.push(AppRoutes.healthCheck),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: const BoxDecoration(
+                color: AppColors.pastelMint,
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.monitor_heart_rounded,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                'Check your health in 1 minute',
+                style: AppTextStyles.cardTitle.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            PillButton.navy(
+              text: 'Start',
+              width: 82,
+              height: 36,
+              showTrailingArrow: true,
+              textStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              onPressed: () => context.push(AppRoutes.healthCheck),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildActionItem(IconData icon, String label, Color bgColor, {VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: bgColor,
-              shape: BoxShape.circle,
+  Widget _buildFirstActionCard(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: AppCard(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+        child: GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 8,
+          childAspectRatio: 0.9,
+          children: [
+            PastelIconTile(
+              backgroundColor: AppColors.pastelBlue,
+              label: 'Appointment',
+              icon: Icons.calendar_month,
+              circleSize: 60,
+              iconSize: 26,
+              onTap: () => context.push(AppRoutes.appointments),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 28),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-            maxLines: 2,
-          ),
-        ],
+            PastelIconTile(
+              backgroundColor: AppColors.pastelPink,
+              label: 'Medication',
+              icon: Icons.medication,
+              circleSize: 60,
+              iconSize: 26,
+              onTap: () async {
+                final url = Uri.parse('https://grabkrt.web.app/');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Could not launch URL')),
+                    );
+                  }
+                }
+              },
+            ),
+            const PastelIconTile(
+              backgroundColor: AppColors.pastelCyan,
+              label: 'Diagnosis',
+              icon: Icons.monitor_heart,
+              circleSize: 60,
+              iconSize: 26,
+            ),
+            const PastelIconTile(
+              backgroundColor: AppColors.pastelOrange,
+              label: 'Follow Up',
+              icon: Icons.assignment,
+              circleSize: 60,
+              iconSize: 26,
+            ),
+            const PastelIconTile(
+              backgroundColor: AppColors.pastelGreen,
+              label: 'Allergies',
+              icon: Icons.back_hand,
+              circleSize: 60,
+              iconSize: 26,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSecondActionCard(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: AppCard(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+        child: GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 8,
+          childAspectRatio: 0.9,
+          children: [
+            const PastelIconTile(
+              backgroundColor: AppColors.pastelBlue,
+              label: 'Pathology Reports',
+              icon: Icons.article_outlined,
+              circleSize: 60,
+              iconSize: 26,
+            ),
+            const PastelIconTile(
+              backgroundColor: AppColors.pastelPink,
+              label: 'Radiology Reports',
+              icon: Icons.medical_services_outlined,
+              circleSize: 60,
+              iconSize: 26,
+            ),
+            const PastelIconTile(
+              backgroundColor: AppColors.pastelPurple,
+              label: 'Health Records',
+              icon: Icons.folder_shared_outlined,
+              circleSize: 60,
+              iconSize: 26,
+            ),
+            const PastelIconTile(
+              backgroundColor: AppColors.pastelOrange,
+              label: 'My Ledger',
+              icon: Icons.receipt_long_outlined,
+              circleSize: 60,
+              iconSize: 26,
+            ),
+            const PastelIconTile(
+              backgroundColor: AppColors.pastelCyan,
+              label: 'Discharge Summary',
+              icon: Icons.assignment_outlined,
+              circleSize: 60,
+              iconSize: 26,
+            ),
+            PastelIconTile(
+              backgroundColor: AppColors.pastelMint,
+              label: 'Health Check',
+              icon: Icons.monitor_heart_rounded,
+              circleSize: 60,
+              iconSize: 26,
+              onTap: () => context.push(AppRoutes.healthCheck),
+            ),
+          ],
+        ),
       ),
     );
   }

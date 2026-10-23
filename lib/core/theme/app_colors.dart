@@ -41,6 +41,20 @@ abstract final class AppColors {
   static const Color iconYellow = Color(0xFFFFF9C4);
   static const Color iconGreen = Color(0xFFC8E6C9);
 
+  // ── Pastel icon backgrounds (home action tiles) ─────────────────────────────
+  static const Color pastelBlue = Color(0xFFE8EAF6); // Appointment tile
+  static const Color pastelPink = Color(0xFFFFEBEE); // Medication tile
+  static const Color pastelCyan = Color(0xFFE0F7FA); // Diagnosis tile
+  static const Color pastelOrange = Color(0xFFFFF3E0); // Follow Up tile
+  static const Color pastelGreen = Color(0xFFE8F5E9); // Allergies tile
+  static const Color pastelPurple = Color(0xFFF3E5F5); // Health Records tile
+  static const Color pastelMint = Color(0xFFE0F2F1); // Health Check tile (mint/teal)
+  static const Color pastelTeal = Color(0xFFE0F2F1); // Pastel teal alias
+
+  // ── Decorative & Shadows ───────────────────────────────────────────────────
+  static const Color decorativeArc = Color(0xFFDCE6F5); // Top right arc on ScreenScaffold
+  static const Color cardShadow = Color(0x0F1A3A6E); // Soft navy-tinted card shadow
+
   // ── Misc ───────────────────────────────────────────────────────────────────
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);

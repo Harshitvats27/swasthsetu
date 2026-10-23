@@ -41,4 +41,7 @@ abstract final class AppConstants {
 
   // ── Pagination ──────────────────────────────────────────────────────────────
   static const int defaultPageSize = 20;
+
+  // ── Health Check API ────────────────────────────────────────────────────────
+  static const String healthApiBaseUrl = 'https://swasth-setu-api-vi2x.onrender.com';
 }

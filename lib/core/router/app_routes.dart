@@ -43,4 +43,10 @@ abstract final class AppRoutes {
 
   // ── AI Search ──────────────────────────────────────────────────────────────
   static const String aiSearch = '/ai-search';
+
+  // ── Health Check ───────────────────────────────────────────────────────────
+  static const String healthCheck = '/check-health';
+  static const String healthCheckDisease = '/check-health/disease';
+  static const String healthCheckHeart = '/check-health/heart';
+  static const String healthCheckDiabetes = '/check-health/diabetes';
 }

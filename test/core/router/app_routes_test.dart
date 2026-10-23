@@ -34,6 +34,10 @@ void main() {
         AppRoutes.sos,
         AppRoutes.chat,
         AppRoutes.aiSearch,
+        AppRoutes.healthCheck,
+        AppRoutes.healthCheckDisease,
+        AppRoutes.healthCheckHeart,
+        AppRoutes.healthCheckDiabetes,
       ];
       expect(all.toSet().length, all.length,
           reason: 'Duplicate route paths detected');
@@ -42,6 +46,9 @@ void main() {
     test('feature routes are under their own prefix', () {
       expect(AppRoutes.bookAppointment, startsWith(AppRoutes.appointments));
       expect(AppRoutes.doctorDetail, startsWith(AppRoutes.doctors));
+      expect(AppRoutes.healthCheckDisease, startsWith(AppRoutes.healthCheck));
+      expect(AppRoutes.healthCheckHeart, startsWith(AppRoutes.healthCheck));
+      expect(AppRoutes.healthCheckDiabetes, startsWith(AppRoutes.healthCheck));
     });
 
     test('no route has trailing slash (except root)', () {
@@ -57,6 +64,10 @@ void main() {
         AppRoutes.sos,
         AppRoutes.chat,
         AppRoutes.aiSearch,
+        AppRoutes.healthCheck,
+        AppRoutes.healthCheckDisease,
+        AppRoutes.healthCheckHeart,
+        AppRoutes.healthCheckDiabetes,
       ];
       for (final r in nonRoot) {
         expect(r.endsWith('/'), isFalse,

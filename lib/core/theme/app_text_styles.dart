@@ -135,4 +135,53 @@ abstract final class AppTextStyles {
         color: AppColors.white,
         letterSpacing: 0.3,
       );
+
+  /// Navy screen header title — used in ScreenScaffold
+  static TextStyle get screenTitle => GoogleFonts.poppins(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: AppColors.primary,
+      );
+
+  /// Selected tab text in SegmentedPillTabs
+  static TextStyle get tabSelected => GoogleFonts.poppins(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: AppColors.white,
+      );
+
+  /// Unselected tab text in SegmentedPillTabs
+  static TextStyle get tabUnselected => GoogleFonts.poppins(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: AppColors.textSecondary,
+      );
+
+  /// Grey text message in EmptyState
+  static TextStyle get emptyStateTitle => GoogleFonts.poppins(
+        fontSize: 15,
+        fontWeight: FontWeight.w500,
+        color: AppColors.textSecondary,
+      );
+
+  /// Centered label below icon in PastelIconTile
+  static TextStyle get pastelTileLabel => GoogleFonts.poppins(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: AppColors.textPrimary,
+      );
+
+  /// Card header/title
+  static TextStyle get cardTitle => GoogleFonts.poppins(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textPrimary,
+      );
+
+  /// Small caption / footnote
+  static TextStyle get caption => GoogleFonts.poppins(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        color: AppColors.textSecondary,
+      );
 }

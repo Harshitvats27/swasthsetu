@@ -37,6 +37,10 @@ import 'package:swasthsetu/features/pharmacy/presentation/pages/pharmacy_page.da
 import 'package:swasthsetu/features/sos/presentation/pages/sos_page.dart';
 import 'package:swasthsetu/features/chat/presentation/pages/chat_page.dart';
 import 'package:swasthsetu/features/ai_search/presentation/pages/ai_search_page.dart';
+import 'package:swasthsetu/features/health_check/presentation/pages/health_check_hub_page.dart';
+import 'package:swasthsetu/features/health_check/presentation/pages/disease_check_page.dart';
+import 'package:swasthsetu/features/health_check/presentation/pages/heart_check_page.dart';
+import 'package:swasthsetu/features/health_check/presentation/pages/diabetes_check_page.dart';
 
 /// The top-level [GoRouter] for SwasthSetu.
 ///
@@ -81,6 +85,30 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
+    // ── Health Check ─────────────────────────────────────────────────────────
+    GoRoute(
+      path: AppRoutes.healthCheck,
+      name: 'healthCheck',
+      builder: (context, state) => const HealthCheckHubPage(),
+      routes: [
+        GoRoute(
+          path: 'disease',
+          name: 'healthCheckDisease',
+          builder: (context, state) => const DiseaseCheckPage(),
+        ),
+        GoRoute(
+          path: 'heart',
+          name: 'healthCheckHeart',
+          builder: (context, state) => const HeartCheckPage(),
+        ),
+        GoRoute(
+          path: 'diabetes',
+          name: 'healthCheckDiabetes',
+          builder: (context, state) => const DiabetesCheckPage(),
+        ),
+      ],
+    ),
+
     // ── Shell (bottom nav) ────────────────────────────────────────────────────
     ShellRoute(
       builder: (context, state, child) => MultiBlocProvider(
@@ -119,10 +147,13 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: AppRoutes.doctors,
           name: 'doctors',
-          builder: (context, state) => BlocProvider<DoctorBloc>(
-            create: (_) => sl<DoctorBloc>(),
-            child: const DoctorsPage(),
-          ),
+          builder: (context, state) {
+            final specialty = state.uri.queryParameters['specialty'];
+            return BlocProvider<DoctorBloc>(
+              create: (_) => sl<DoctorBloc>(),
+              child: DoctorsPage(initialSpecialty: specialty),
+            );
+          },
         ),
         GoRoute(
           path: AppRoutes.hospitals,

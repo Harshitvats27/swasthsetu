@@ -13,12 +13,35 @@ class DoctorRemoteDataSource {
 
   Future<List<DoctorModel>> searchDoctors(String query) async {
     final allDoctors = await fetchDoctors();
-    final lowerQuery = query.toLowerCase();
+    final lowerQuery = query.toLowerCase().trim();
+    if (lowerQuery.isEmpty) return allDoctors;
+
+    final queryStem = lowerQuery.replaceAll(
+      RegExp(r'(ologist|ology|iatrician|iatrics|ist|y)$'),
+      '',
+    );
+
     return allDoctors.where((doc) {
-      return doc.name.toLowerCase().contains(lowerQuery) ||
-          doc.specializations
-              .any((spec) => spec.toLowerCase().contains(lowerQuery)) ||
-          doc.clinicName.toLowerCase().contains(lowerQuery);
+      final nameMatches = doc.name.toLowerCase().contains(lowerQuery);
+      final clinicMatches = doc.clinicName.toLowerCase().contains(lowerQuery) ||
+          (queryStem.length >= 4 && doc.clinicName.toLowerCase().contains(queryStem));
+
+      final specMatches = doc.specializations.any((spec) {
+        final s = spec.toLowerCase();
+        if (s.contains(lowerQuery) || lowerQuery.contains(s)) return true;
+        if (queryStem.length >= 4) {
+          final specStem = s.replaceAll(
+            RegExp(r'(ologist|ology|iatrician|iatrics|ist|y)$'),
+            '',
+          );
+          if (s.contains(queryStem) || specStem.contains(queryStem)) {
+            return true;
+          }
+        }
+        return false;
+      });
+
+      return nameMatches || clinicMatches || specMatches;
     }).toList();
   }
 

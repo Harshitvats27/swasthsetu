@@ -65,7 +65,7 @@ class ShellScaffold extends StatelessWidget {
                   builder: (context, sosState) {
                     if (sosState is SosCountdown) {
                       return AlertDialog(
-                        backgroundColor: AppColors.emergency.withOpacity(0.9),
+                        backgroundColor: AppColors.emergency.withValues(alpha: 0.9),
                         title: const Text('SOS Triggered!', style: TextStyle(color: Colors.white)),
                         content: Text(
                           'Sending emergency alerts in ${sosState.secondsLeft} seconds...',

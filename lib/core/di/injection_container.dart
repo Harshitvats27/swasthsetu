@@ -16,6 +16,7 @@ import 'package:swasthsetu/features/hospitals_queue/di/hospitals_queue_injection
 import 'package:swasthsetu/features/sos/di/sos_injection.dart';
 // import 'package:swasthsetu/features/chat/di/chat_injection.dart';
 // import 'package:swasthsetu/features/ai_search/di/ai_search_injection.dart';
+import 'package:swasthsetu/features/health_check/di/health_check_injection.dart';
 
 /// Global [GetIt] service locator instance.
 /// Access via `sl<MyType>()` throughout the app.
@@ -47,6 +48,7 @@ Future<void> initDependencies() async {
   sosInjection(sl);
   // chatInjection(sl);
   // aiSearchInjection(sl);
+  healthCheckInjection(sl);
 }
 
 // ── Private helpers ──────────────────────────────────────────────────────────

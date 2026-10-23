@@ -63,9 +63,28 @@ class AuthFailure extends Failure {
   List<Object?> get props => [...super.props, code];
 }
 
-/// Thrown when validation rules are not met.
+/// Thrown when a network request times out (e.g. server waking up from sleep).
+class TimeoutFailure extends Failure {
+  const TimeoutFailure({
+    super.message = 'The server is taking too long to respond. It may be waking up, please try again.',
+    super.stackTrace,
+  });
+}
+
+/// Thrown when validation rules are not met or backend returns 400/422 validation errors.
 class ValidationFailure extends Failure {
-  const ValidationFailure({required super.message});
+  const ValidationFailure({
+    required super.message,
+    this.statusCode,
+    this.details,
+    super.stackTrace,
+  });
+
+  final int? statusCode;
+  final dynamic details;
+
+  @override
+  List<Object?> get props => [...super.props, statusCode, details];
 }
 
 /// Thrown when a requested resource is not found.

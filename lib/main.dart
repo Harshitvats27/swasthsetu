@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'package:swasthsetu/features/auth/bloc/auth_bloc.dart';
 import 'package:swasthsetu/core/utils/seeder.dart';
 import 'package:swasthsetu/features/sos/bloc/sos_bloc.dart';
+import 'package:swasthsetu/features/health_check/data/repositories/health_repository.dart';
 
 /// BLoC observer for logging state transitions during development.
 class _AppBlocObserver extends BlocObserver {
@@ -36,6 +37,9 @@ Future<void> main() async {
 
 // ── Dependency Injection ──────────────────────────────────────────────────
   await initDependencies();
+
+  // Wake up free-tier Render backend (fire-and-forget, never awaited)
+  sl<HealthRepository>().wakeServer();
 
   // Run seeding in background without blocking runApp
   Seeder.seedDatabase().then((_) => debugPrint('Database seeded!'));

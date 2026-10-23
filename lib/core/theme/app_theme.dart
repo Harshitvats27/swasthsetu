@@ -15,6 +15,7 @@ abstract final class AppTheme {
   static const double radiusSmall = 8;
   static const double radiusMedium = 12;
   static const double radiusLarge = 16;
+  static const double radiusCard = 22; // AppCard corner radius
   static const double radiusPill = 30;
 
   static const double paddingXs = 4;
